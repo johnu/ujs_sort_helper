@@ -94,26 +94,14 @@ module UjsSortHelper
   # - A sort icon image is positioned to the right of the sort link.
   #
   def sort_link(column, caption=nil, initial_order="asc")
-    
-    key, order = session[@sort_name][:key], session[@sort_name][:order]
-    if key == column
-      if order.downcase == 'asc'
-        icon = 'sort_asc.png'
-        order = 'desc'
-      else
-        icon = 'sort_desc.png'
-        order = 'asc'
-      end
-    else
-      icon = nil
-      order = initial_order # JPM - Updated original helper to allow for a dynamic initial sort order
-    end
-    caption = titleize(Inflector::humanize(column)) unless caption
-    
-    url = { :sort_key => column, :sort_order => order, :filter => params[:filter]}
+    key = session[@sort_name][:key].to_sym
+    order = sort_order(column, initial_order)
+    caption = column.to_s.titleize unless caption
+
+    url = { :sort_key => column, :sort_order => sort_order(column, initial_order), :filter => params[:filter]}
     url.merge!({:q => params[:q]}) unless params[:q].nil?
-    
-    link_to(caption, url, :class => "sort_link #{order if key == column}")
+
+    link_to(caption, url, :class => "sort_link #{sort_order(column, initial_order) if key == column}")
   end
 
   # Returns a table header <th> tag with a sort link for the named column
@@ -137,21 +125,34 @@ module UjsSortHelper
   #
   def sort_header_tag(column, options = {})    
     options[:initial_order].nil? ? initial_order = "asc" : initial_order = options[:initial_order]
-    caption = options.delete(:caption) || titleize(Inflector::humanize(column))
-    #options[:title] = caption unless options[:title]
-    content_tag('th', sort_link(column, caption, initial_order), options.except(:initial_order))
+    key = session[@sort_name][:key].to_sym
+    order = sort_order(column, initial_order)
+    caption = options.delete(:caption) || column.to_s.titleize
+
+    url = { :sort_key => column, :sort_order => order, :filter => params[:filter]}
+    url.merge!({:q => params[:q]}) unless params[:q].nil?
+
+    content_tag('th', link_to(caption, url, options.except(:initial_order)), :class => "sort_link #{order if key == column}")
   end
 
   private
 
-    # Return n non-breaking spaces.
-    def nbsp(n)
-      '&nbsp;' * n
+  def sort_icon(column)
+    if session[@sort_name][:key] == column
+      "sort#{session[@sort_name][:order].downcase}"
     end
+  end
 
-    # Return capitalized title.
-    def titleize(title)
-      title.split.map {|w| w.capitalize }.join(' ')
+  def sort_order(column, initial_order='asc')
+    if session[@sort_name][:key].to_sym == column
+      session[@sort_name][:order].downcase == 'asc' ? 'desc' : 'asc'
+    else
+      initial_order
     end
+  end
 
+  # Return n non-breaking spaces.
+  def nbsp(n)
+    '&nbsp;' * n
+  end
 end

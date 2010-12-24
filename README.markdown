@@ -13,7 +13,7 @@ This is a plugin version of Stuart Rackham's most excellent SortHelper helper. T
 
 In Rails 3, you just install the plugin and run the generator
 
-    $ rails plugin install git://github.com/oozou/ujs_sort_helper.git
+    $ rails plugin install git://github.com/johnu/ujs_sort_helper.git
     $ rails generate ujs_sort_helper:install
 
 ## Usage

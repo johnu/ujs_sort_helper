@@ -125,7 +125,7 @@ module UjsSortHelper
   #
   def sort_header_tag(column, options = {})    
     options[:initial_order].nil? ? initial_order = "asc" : initial_order = options[:initial_order]
-    key = session[@sort_name][:key].to_sym
+    key = session[@sort_name][:key]
     order = sort_order(column, initial_order)
     caption = options.delete(:caption) || column.to_s.titleize
 
@@ -144,7 +144,7 @@ module UjsSortHelper
   end
 
   def sort_order(column, initial_order='asc')
-    if session[@sort_name][:key].to_sym == column
+    if session[@sort_name][:key] == column
       session[@sort_name][:order].downcase == 'asc' ? 'desc' : 'asc'
     else
       initial_order
